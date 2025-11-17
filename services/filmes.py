@@ -24,3 +24,6 @@ class NovoFilme(BaseModel):
     data_lancamento: datetime
     emCartaz: bool
 
+@app.GET("/check")
+def check():
+    return{"status": "ok"}

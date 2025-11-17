@@ -5,7 +5,7 @@ from enum import Enum
 
 app = FastAPI(title="salas")
 
-SALAS = dict[str, dict] = {}
+SALAS = []
 
 class TipoCadeira(str, Enum):
     PADRAO: "padrao"
@@ -22,6 +22,10 @@ class Sala(BaseModel):
     capacidade: int
     assentos: List[Assento]
     disponivel: bool = True
+
+@app.GET("/check")
+def check():
+    return{"status": "ok"}
 
 def _assenta_sala(self) -> List[Assento]:
     assentos = []

@@ -7,10 +7,10 @@ from enum import Enum
 app = FastAPI(title="ingresso")
 
 class StatusIngresso(BaseModel):
-    RESERVADO = "reservado"
-    CONFIRMADO = "confirmado"
-    CANCELADO = "cancelado"
-    USADO = "usado"
+    RESERVADO: "reservado"
+    CONFIRMADO: "confirmado"
+    CANCELADO: "cancelado"
+    USADO: "usado"
 
 class Ingresso(BaseModel):
     id: str
@@ -20,3 +20,7 @@ class Ingresso(BaseModel):
     nome_cliente: str
     meia_entrada: bool = False
     status: StatusIngresso
+
+@app.GET("/check")
+def check():
+    return{"status": "ok"}

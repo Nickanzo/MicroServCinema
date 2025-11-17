@@ -6,7 +6,9 @@ from enum import Enum
 
 app = FastAPI(title="sessao")
 
-class Sessao(Basemodel):
+SESSOES = []
+
+class Sessao(BaseModel):
     id: str
     filme_id: str
     sala_id: str
@@ -16,3 +18,7 @@ class Sessao(Basemodel):
     assentos_livres: int
     assentos_total: int
     disponivel: bool = True
+
+@app.GET("/check")
+def check():
+    return{"status": "ok"}
