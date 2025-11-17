@@ -18,7 +18,7 @@ class Assento(BaseModel):
     disponivel: bool = True
 
 class Sala(BaseModel):
-    id: str
+    numero: int
     capacidade: int
     assentos: List[Assento]
     disponivel: bool = True
@@ -26,6 +26,15 @@ class Sala(BaseModel):
 @app.GET("/check")
 def check():
     return{"status": "ok"}
+
+@app.GET("/lista-salas")
+def listaSalas():
+
+@app.POST("/cria-sala")
+def criaSala(s : Sala)
+    SALAS.append({"numero": len(SALAS), "capacidade": s.capacidade, "assentos": _assenta_sala()})
+    
+
 
 def _assenta_sala(self) -> List[Assento]:
     assentos = []

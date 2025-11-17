@@ -24,3 +24,6 @@ class Ingresso(BaseModel):
 @app.GET("/check")
 def check():
     return{"status": "ok"}
+
+@app.GET("/verifica-ingresso/{ingresso_id}")
+def statusIngresso():

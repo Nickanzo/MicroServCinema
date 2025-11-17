@@ -22,3 +22,7 @@ class Sessao(BaseModel):
 @app.GET("/check")
 def check():
     return{"status": "ok"}
+
+@app.GET("/lista-sessoes")
+def buscaSessoes():
+    

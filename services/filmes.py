@@ -17,7 +17,7 @@ class GeneroFilme(str, Enum):
     INFANTIL = "infantil"
     NACIONAL = "nacional"
 
-class NovoFilme(BaseModel):
+class Filme(BaseModel):
     id: str
     nome: str
     genero: GeneroFilme
@@ -27,3 +27,12 @@ class NovoFilme(BaseModel):
 @app.GET("/check")
 def check():
     return{"status": "ok"}
+
+@app.POST("/novo-filme")
+def criaFilme(f : Filme):
+
+@app.GET("/lista-filmes")
+def listaFilmes():
+
+@app.GET("/busca-filme/{filme_id}")
+def buscaFilme():
