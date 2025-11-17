@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from datetime import datetime
 from pydantic import BaseModel
 from enum import Enum
-from typing import List, Dict
+from typing import Dict
 
 app = FastAPI(title="filmes")
 
@@ -23,4 +23,4 @@ class NovoFilme(BaseModel):
     genero: GeneroFilme
     data_lancamento: datetime
     emCartaz: bool
-    
+
