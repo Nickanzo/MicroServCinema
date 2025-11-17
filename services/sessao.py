@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from typing import List
 from enum import Enum
 
+app = FastAPI(title="sessao")
+
 class Sessao(Basemodel):
     id: str
     filme_id: str
