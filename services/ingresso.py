@@ -6,6 +6,8 @@ from enum import Enum
 
 app = FastAPI(title="ingresso")
 
+INGRESSOS = []
+
 class StatusIngresso(BaseModel):
     RESERVADO: "reservado"
     CONFIRMADO: "confirmado"
@@ -13,8 +15,8 @@ class StatusIngresso(BaseModel):
     USADO: "usado"
 
 class Ingresso(BaseModel):
-    id: str
-    id_sessao: str
+    ingresso_id: str
+    sessao_id: str
     fila_asento: str
     num_assento: str
     nome_cliente: str
@@ -26,4 +28,6 @@ def check():
     return{"status": "ok"}
 
 @app.GET("/verifica-ingresso/{ingresso_id}")
-def statusIngresso():
+def statusIngresso(ingresso_id: str):
+    ingresso = INGRESSOS.get(ingresso_id)
+    

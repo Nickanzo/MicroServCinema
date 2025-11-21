@@ -6,7 +6,7 @@ from typing import Dict
 
 app = FastAPI(title="filmes")
 
-FILMES: Dict[str, dict] = {}
+FILMES = []
 
 class GeneroFilme(str, Enum):
     ACAO = "acao"
@@ -18,11 +18,11 @@ class GeneroFilme(str, Enum):
     NACIONAL = "nacional"
 
 class Filme(BaseModel):
-    id: str
+    filme_id: str
     nome: str
     genero: GeneroFilme
     data_lancamento: datetime
-    emCartaz: bool
+    emCartaz: bool = True
 
 @app.GET("/check")
 def check():
@@ -30,9 +30,24 @@ def check():
 
 @app.POST("/novo-filme")
 def criaFilme(f : Filme):
+    if f.filme_id in FILMES:
+        raise HTTPException(409, "Filme já cadastrado")
+    FILMES[f.filme_id] = {
+        "nome": f.nome,
+        "genero": f.genero,
+        "data_lancamento": f.data_lancamento,
+        "emCartaz": f.emCartaz
+        }
+    return {"ok": True}
 
 @app.GET("/lista-filmes")
 def listaFilmes():
+    return {"filmes": FILMES}
+        
 
 @app.GET("/busca-filme/{filme_id}")
-def buscaFilme():
+def buscaFilme(filme_id: str):
+    filme = FILMES.get(filme_id)
+    if not filme:
+        raise HTTPException(404, "Filme não encontrado...")
+    return {"filme": filme}

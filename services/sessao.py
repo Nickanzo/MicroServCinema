@@ -9,7 +9,7 @@ app = FastAPI(title="sessao")
 SESSOES = []
 
 class Sessao(BaseModel):
-    id: str
+    sessao_id: str
     filme_id: str
     sala_id: str
     hora_inicio: datetime
@@ -25,4 +25,4 @@ def check():
 
 @app.GET("/lista-sessoes")
 def buscaSessoes():
-    
+    return{ "sessoes": SESSOES}

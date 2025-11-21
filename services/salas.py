@@ -29,12 +29,11 @@ def check():
 
 @app.GET("/lista-salas")
 def listaSalas():
+    return{ "salas": SALAS}
 
 @app.POST("/cria-sala")
-def criaSala(s : Sala)
-    SALAS.append({"numero": len(SALAS), "capacidade": s.capacidade, "assentos": _assenta_sala()})
-    
-
+def criaSala(s : Sala):
+    SALAS.append({"numero": len(SALAS), "capacidade": s.capacidade, "assentos": _assenta_sala()})    
 
 def _assenta_sala(self) -> List[Assento]:
     assentos = []
