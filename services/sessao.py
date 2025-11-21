@@ -19,10 +19,10 @@ class Sessao(BaseModel):
     assentos_total: int
     disponivel: bool = True
 
-@app.GET("/check")
+@app.get("/check")
 def check():
     return{"status": "ok"}
 
-@app.GET("/lista-sessoes")
+@app.get("/lista-sessoes")
 def buscaSessoes():
     return{ "sessoes": SESSOES}

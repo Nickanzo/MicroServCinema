@@ -23,11 +23,11 @@ class Ingresso(BaseModel):
     meia_entrada: bool = False
     status: StatusIngresso
 
-@app.GET("/check")
+@app.get("/check")
 def check():
     return{"status": "ok"}
 
-@app.GET("/verifica-ingresso/{ingresso_id}")
+@app.get("/verifica-ingresso/{ingresso_id}")
 def statusIngresso(ingresso_id: str):
     ingresso = INGRESSOS.get(ingresso_id)
     

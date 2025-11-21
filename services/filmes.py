@@ -24,11 +24,11 @@ class Filme(BaseModel):
     data_lancamento: datetime
     emCartaz: bool = True
 
-@app.GET("/check")
+@app.get("/check")
 def check():
     return{"status": "ok"}
 
-@app.POST("/novo-filme")
+@app.post("/novo-filme")
 def criaFilme(f : Filme):
     if f.filme_id in FILMES:
         raise HTTPException(409, "Filme já cadastrado")
@@ -40,12 +40,12 @@ def criaFilme(f : Filme):
         }
     return {"ok": True}
 
-@app.GET("/lista-filmes")
+@app.get("/lista-filmes")
 def listaFilmes():
     return {"filmes": FILMES}
         
 
-@app.GET("/busca-filme/{filme_id}")
+@app.get("/busca-filme/{filme_id}")
 def buscaFilme(filme_id: str):
     filme = FILMES.get(filme_id)
     if not filme:

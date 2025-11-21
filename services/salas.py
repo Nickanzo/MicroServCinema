@@ -23,15 +23,15 @@ class Sala(BaseModel):
     assentos: List[Assento]
     disponivel: bool = True
 
-@app.GET("/check")
+@app.get("/check")
 def check():
     return{"status": "ok"}
 
-@app.GET("/lista-salas")
+@app.get("/lista-salas")
 def listaSalas():
     return{ "salas": SALAS}
 
-@app.POST("/cria-sala")
+@app.post("/cria-sala")
 def criaSala(s : Sala):
     SALAS.append({"numero": len(SALAS), "capacidade": s.capacidade, "assentos": _assenta_sala()})    
 
@@ -50,8 +50,3 @@ def _assenta_sala(self) -> List[Assento]:
                 tipo=tipo
             ))
     return assentos
-
-    
-
-
-
