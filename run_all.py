@@ -9,10 +9,10 @@ from services.ingresso import app as ingresso_app
 from services.salas import app as salas_app
 from services.sessao import app as sessao_app
 
-FILMES_URL    = os.getenv("FILMES_URL",  "http://127.0.0.1:3001")
-INGRESSOS_URL = os.getenv("INGRESSOS_URL", "http://127.0.0.1:3002")
-SALAS_URL     = os.getenv("SALAS_URL",  "http://127.0.0.1:3003")
-SESSOES_URL   = os.getenv("SESSOES_URL",  "http://127.0.0.1:3004")
+FILMES_URL    = os.getenv("FILMES_URL",  "http://127.0.0.1:8001/docs")
+INGRESSOS_URL = os.getenv("INGRESSOS_URL", "http://127.0.0.1:8002/docs")
+SALAS_URL     = os.getenv("SALAS_URL",  "http://127.0.0.1:8003/docs")
+SESSOES_URL   = os.getenv("SESSOES_URL",  "http://127.0.0.1:8004/docs")
 
 app = FastAPI(title="dashboard")
 
