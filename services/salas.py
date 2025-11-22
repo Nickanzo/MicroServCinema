@@ -22,10 +22,18 @@ class Sala(BaseModel):
     numero: int
     assentos: List[Assento]
     disponivel: bool = True
-    # Propriedade calculada para capacidade
+    
     @property
     def capacidade(self) -> int:
         return len(self.assentos)
+    
+    @property
+    def assentos_disponiveis(self) -> int:
+        return sum(1 for assento in self.assentos if assento.disponivel)
+    
+class ReservaAssentoRequest(BaseModel):
+    fila: str
+    numero: int
 
 @app.get("/check")
 def check():
@@ -33,13 +41,40 @@ def check():
 
 @app.get("/lista-salas")
 def listaSalas():
-    salas_com_capacidade = []
+    salas_com_info = []
     for sala in SALAS.values():
         sala_data = sala.copy()
         sala_data['capacidade'] = len(sala_data['assentos'])
-        salas_com_capacidade.append(sala_data)
+        sala_data['assentos_disponiveis'] = sum(1 for a in sala_data['assentos'] if a['disponivel'])
+        salas_com_info.append(sala_data)
     
-    return {"salas": salas_com_capacidade}
+    return {"salas": salas_com_info}
+
+@app.get("/salas/{sala_numero}")
+def buscaSala(sala_numero: int):
+    if sala_numero not in SALAS:
+        raise HTTPException(404, "Sala não encontrada")
+    
+    sala = SALAS[sala_numero].copy()
+    sala['capacidade'] = len(sala['assentos'])
+    sala['assentos_disponiveis'] = sum(1 for a in sala['assentos'] if a['disponivel'])
+    
+    return {"sala": sala}
+
+@app.get("/salas/{sala_numero}/capacidade")
+def get_capacidade_sala(sala_numero: int):
+    if sala_numero not in SALAS:
+        raise HTTPException(404, "Sala não encontrada")
+    
+    sala = SALAS[sala_numero]
+    capacidade = len(sala['assentos'])
+    assentos_disponiveis = sum(1 for a in sala['assentos'] if a['disponivel'])
+    
+    return {
+        "numero_sala": sala_numero, 
+        "capacidade": capacidade,
+        "assentos_disponiveis": assentos_disponiveis
+    }
 
 @app.post("/cria-sala")
 def criaSala(s: Sala):
@@ -51,6 +86,99 @@ def criaSala(s: Sala):
     
     SALAS[s.numero] = s.dict()
     return {"ok": True, "capacidade": len(s.assentos)}
+
+@app.put("/salas/{sala_numero}/reservar-assento")
+def reservar_assento_especifico(sala_numero: int, reserva: ReservaAssentoRequest):
+    if sala_numero not in SALAS:
+        raise HTTPException(404, "Sala não encontrada")
+    
+    sala = SALAS[sala_numero]
+    
+    for assento in sala['assentos']:
+        if assento['fila'] == reserva.fila and assento['numero'] == reserva.numero:
+            if not assento['disponivel']:
+                raise HTTPException(409, "Assento já está ocupado")
+            
+            assento['disponivel'] = False
+            return {
+                "ok": True, 
+                "assento_reservado": {
+                    "fila": reserva.fila,
+                    "numero": reserva.numero,
+                    "tipo": assento['tipo']
+                },
+                "assentos_disponiveis": sum(1 for a in sala['assentos'] if a['disponivel'])
+            }
+    
+    raise HTTPException(404, "Assento não encontrado")
+
+@app.put("/salas/{sala_numero}/reservar-proximo-assento")
+def reservar_proximo_assento(sala_numero: int):    
+    if sala_numero not in SALAS:
+        raise HTTPException(404, "Sala não encontrada")
+    
+    sala = SALAS[sala_numero]
+    
+    for assento in sala['assentos']:
+        if assento['disponivel']:
+            assento['disponivel'] = False
+            
+            return {
+                "ok": True,
+                "assento_reservado": {
+                    "fila": assento['fila'],
+                    "numero": assento['numero'],
+                    "tipo": assento['tipo']
+                },
+                "assentos_disponiveis": sum(1 for a in sala['assentos'] if a['disponivel'])
+            }
+    
+    raise HTTPException(409, "Não há assentos disponíveis")
+
+@app.put("/salas/{sala_numero}/liberar-assento")
+def liberar_assento(sala_numero: int, reserva: ReservaAssentoRequest):
+    if sala_numero not in SALAS:
+        raise HTTPException(404, "Sala não encontrada")
+    
+    sala = SALAS[sala_numero]
+    capacidade = len(sala['assentos'])
+    
+    for assento in sala['assentos']:
+        if assento['fila'] == reserva.fila and assento['numero'] == reserva.numero:
+            if assento['disponivel']:
+                raise HTTPException(409, "Assento já está disponível")
+            
+            assento['disponivel'] = True
+            return {
+                "ok": True,
+                "assento_liberado": {
+                    "fila": reserva.fila,
+                    "numero": reserva.numero,
+                    "tipo": assento['tipo']
+                },
+                "assentos_disponiveis": sum(1 for a in sala['assentos'] if a['disponivel'])
+            }
+    
+    raise HTTPException(404, "Assento não encontrado")
+
+@app.get("/salas/{sala_numero}/assentos")  
+def lista_assentos_sala(sala_numero: int, apenas_disponiveis: bool = False):
+    if sala_numero not in SALAS:
+        raise HTTPException(404, "Sala não encontrada")
+    
+    sala = SALAS[sala_numero]
+    
+    if apenas_disponiveis:
+        assentos = [a for a in sala['assentos'] if a['disponivel']]
+    else:
+        assentos = sala['assentos']
+    
+    return {
+        "sala_numero": sala_numero,
+        "total_assentos": len(sala['assentos']),
+        "assentos_disponiveis": sum(1 for a in sala['assentos'] if a['disponivel']),
+        "assentos": assentos
+    }
 
 def _assenta_sala() -> List[Assento]:  
     assentos = []
@@ -67,13 +195,3 @@ def _assenta_sala() -> List[Assento]:
                 tipo=tipo
             ))
     return assentos
-
-# Endpoint para obter capacidade específica
-@app.get("/sala/{numero_sala}/capacidade")
-def get_capacidade_sala(numero_sala: int):
-    if numero_sala not in SALAS:
-        raise HTTPException(404, "Sala não encontrada")
-    
-    sala_data = SALAS[numero_sala]
-    capacidade = len(sala_data['assentos'])
-    return {"numero_sala": numero_sala, "capacidade": capacidade}
