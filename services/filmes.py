@@ -1,12 +1,12 @@
 from fastapi import FastAPI, HTTPException
-from datetime import datetime
+from datetime import date
 from pydantic import BaseModel
 from enum import Enum
 from typing import Dict
 
 app = FastAPI(title="filmes")
 
-FILMES = []
+FILMES: Dict[int, Filme] = {}
 
 class GeneroFilme(str, Enum):
     ACAO = "acao"
@@ -18,10 +18,10 @@ class GeneroFilme(str, Enum):
     NACIONAL = "nacional"
 
 class Filme(BaseModel):
-    filme_id: str
+    filme_id: int
     nome: str
     genero: GeneroFilme
-    data_lancamento: datetime
+    data_lancamento: date
     emCartaz: bool = True
 
 @app.get("/check")
@@ -32,22 +32,21 @@ def check():
 def criaFilme(f : Filme):
     if f.filme_id in FILMES:
         raise HTTPException(409, "Filme já cadastrado")
-    FILMES[f.filme_id] = {
-        "nome": f.nome,
-        "genero": f.genero,
-        "data_lancamento": f.data_lancamento,
-        "emCartaz": f.emCartaz
-        }
+    
+    FILMES[f.filme_id] = f
     return {"ok": True}
 
 @app.get("/lista-filmes")
-def listaFilmes():
-    return {"filmes": FILMES}
+def listaFilmes():    
+    return {"filmes": list(FILMES.values())}
         
 
 @app.get("/busca-filme/{filme_id}")
-def buscaFilme(filme_id: str):
-    filme = FILMES.get(filme_id)
-    if not filme:
+def buscaFilme(filme_id: int):
+    try:
+        filme_id_int = int(filme_id)
+    except ValueError:
+        raise HTTPException(400, "ID do filme deve ser um número")
+    if filme_id_int not in FILMES:
         raise HTTPException(404, "Filme não encontrado...")
-    return {"filme": filme}
+    return {"filme": FILMES[filme_id_int]}
