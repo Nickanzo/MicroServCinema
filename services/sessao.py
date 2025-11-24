@@ -1,15 +1,15 @@
-from datetime import datetime, time, timedelta
+from datetime import date, time, timedelta, datetime
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 import requests
 
-app = FastAPI(title="sessao-api")
+app = FastAPI(title="sessao")
 
 SESSOES = []
 
-FILMES_SERVICE_URL = "http://localhost:8000"
-SALAS_SERVICE_URL = "http://localhost:8001"
+FILMES_SERVICE_URL = "http://localhost:8001"
+SALAS_SERVICE_URL = "http://localhost:8003"
 
 class ReservaAssentoRequest(BaseModel):
     fila: Optional[str] = None
@@ -19,7 +19,7 @@ class Sessao(BaseModel):
     sessao_id: str
     filme_id: str
     sala_numero: int
-    data_sessao: datetime
+    data_sessao: date
     hora_inicio: time
     hora_fim: time
     preco: float
@@ -29,7 +29,7 @@ class Sessao(BaseModel):
 class SessaoCreate(BaseModel):
     filme_id: str
     sala_numero: int
-    data_sessao: datetime
+    data_sessao: date
     hora_inicio: time
     preco: float
 
@@ -61,7 +61,7 @@ def obter_capacidade_sala(sala_numero: int) -> int:
         return 0
 
 def calcular_hora_fim(hora_inicio: time) -> time:
-    datetime_inicio = datetime.combine(datetime.today(), hora_inicio)
+    datetime_inicio = datetime.combine(date.today(), hora_inicio)
     datetime_fim = datetime_inicio + timedelta(minutes=120)
     return datetime_fim.time()
 
