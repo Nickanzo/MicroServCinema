@@ -3,7 +3,6 @@ import uvicorn
 import threading, time
 import os, sys
 
-# Adiciona o diretório pai ao PATH
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from services.filmes import app as filmes_app
