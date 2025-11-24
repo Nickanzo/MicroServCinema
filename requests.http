@@ -1,0 +1,6 @@
+### CHECK SERVICES ###
+
+|Dashboard| GET http://127.0.0.1:8000/CHECK
+|Filmes   | GET http://127.0.0.1:8001/CHECK
+|Salas    | GET http://127.0.0.1:8002/CHECK
+|Sessoes  | GET http://127.0.0.1:8003/CHECK
