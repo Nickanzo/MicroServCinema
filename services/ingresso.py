@@ -14,7 +14,7 @@ FILMES_SERVICE_URL = "http://localhost:8001"
 SALAS_SERVICE_URL = "http://localhost:8002"
 SESSAO_SERVICE_URL = "http://localhost:8003"
 
-class StatusIngresso(BaseModel):
+class StatusIngresso(str, Enum):
     RESERVADO = "reservado"
     CONFIRMADO = "confirmado"
     CANCELADO = "cancelado"
@@ -23,7 +23,7 @@ class StatusIngresso(BaseModel):
 class Ingresso(BaseModel):
     ingresso_id: str
     sessao_id: str
-    fila_asento: str
+    fila_assento: str
     num_assento: int
     nome_cliente: str
     meia_entrada: bool = False

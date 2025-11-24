@@ -10,7 +10,7 @@ app = FastAPI(title="sessao")
 SESSOES = []
 
 FILMES_SERVICE_URL = "http://localhost:8001"
-SALAS_SERVICE_URL = "http://localhost:8003"
+SALAS_SERVICE_URL = "http://localhost:8002"
 
 class ReservaAssentoRequest(BaseModel):
     fila: Optional[str] = None

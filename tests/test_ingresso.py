@@ -65,12 +65,13 @@ SALAS_FICTICIAS = [
         "numero": 3,
         "assentos": [],
         "disponivel": True
-    },
-    {
-        "numero": 4,
-        "assentos": [],
-        "disponivel": False
     }
+    #,
+    # {
+    #     "numero": 4,
+    #     "assentos": [],
+    #     "disponivel": False
+    # }
 ]
 
 SESSOES_FICTICIAS = [
@@ -115,21 +116,22 @@ SESSOES_FICTICIAS = [
         "data_sessao": "2024-12-21",
         "hora_inicio": "21:00:00",
         "preco": 32.00
-    },
-    {
-        "filme_id": "4",
-        "sala_numero": 4,
-        "data_sessao": "2024-12-20",
-        "hora_inicio": "22:00:00",
-        "preco": 35.00
-    },
-    {
-        "filme_id": "4",
-        "sala_numero": 4,
-        "data_sessao": "2024-12-21",
-        "hora_inicio": "22:30:00",
-        "preco": 35.00
     }
+    #,
+    # {
+    #     "filme_id": "4",
+    #     "sala_numero": 4,
+    #     "data_sessao": "2024-12-20",
+    #     "hora_inicio": "22:00:00",
+    #     "preco": 35.00
+    # },
+    # {
+    #     "filme_id": "4",
+    #     "sala_numero": 4,
+    #     "data_sessao": "2024-12-21",
+    #     "hora_inicio": "22:30:00",
+    #     "preco": 35.00
+    # }
 ]
 
 FILAS_ASSENTOS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
@@ -193,18 +195,35 @@ def criar_salas_ficticias():
 
 def criar_sessoes_ficticias():
     
+    sessoes_criadas = []
+    
+    sessoes_por_filme = {}
     for sessao in SESSOES_FICTICIAS:
-        try:
-            response = requests.post(
-                f"{SERVICES['sessao']}/sessoes",
-                json=sessao
-            )
-            if response.status_code == 200:
-                print(f"Sessão criada: Filme {sessao['filme_id']} - Sala {sessao['sala_numero']}")
-            else:
-                print(f"Erro ao criar sessão: {response.text}")
-        except Exception as e:
-            print(f"Erro ao criar sessão: {e}")
+        filme_id = sessao["filme_id"]
+        if filme_id not in sessoes_por_filme:
+            sessoes_por_filme[filme_id] = []
+        sessoes_por_filme[filme_id].append(sessao)
+    
+    for filme_id, sessoes in sessoes_por_filme.items():
+        filme_nome = next((f["nome"] for f in FILMES_FICTICIOS if str(f["filme_id"]) == filme_id), f"Filme {filme_id}")
+        print(f"{filme_nome}:")
+        
+        for sessao in sessoes:
+            try:
+                response = requests.post(
+                    f"{SERVICES['sessao']}/sessoes",
+                    json=sessao
+                )
+                if response.status_code == 200:
+                    sessao_criada = response.json().get("sessao", {})
+                    sessoes_criadas.append(sessao_criada)
+                    print(f"Sessão {sessao['data_sessao']} {sessao['hora_inicio']} - Sala {sessao['sala_numero']}")
+                else:
+                    print(f"Erro: {response.text}")
+            except Exception as e:
+                print(f"Erro: {e}")
+    
+    return sessoes_criadas
 
 def criar_ingressos_ficticios(sessoes_criadas):        
     
@@ -230,14 +249,14 @@ def criar_ingressos_ficticios(sessoes_criadas):
                 fila = random.choice(FILAS_ASSENTOS)
                 numero = random.choice(NUMEROS_ASSENTOS)
                 
-                # meia_entrada = random.random() < 0.3
+                meia_entrada = random.random() < 0.3
                 
                 ingresso_data = {
                     "sessao_id": sessao_id,
                     "fila_assento": fila,
                     "num_assento": numero,
                     "nome_cliente": cliente,
-                    "meia_entrada": False
+                    "meia_entrada": meia_entrada
                 }
                 
                 response = requests.post(
@@ -247,8 +266,8 @@ def criar_ingressos_ficticios(sessoes_criadas):
                 
                 if response.status_code == 200:
                     ingressos_criados += 1
-                    # tipo_ingresso = "MEIA" if meia_entrada else "INTEIRA"
-                    tipo_ingresso = "INTEIRA"
+                    tipo_ingresso = "MEIA" if meia_entrada else "INTEIRA"
+                    #tipo_ingresso = "INTEIRA"
                     print(f"{tipo_ingresso} - {cliente} - Assento {fila}{numero}")
                 else:
                     print(f"Erro ao criar ingresso: {response.text}")
@@ -277,7 +296,7 @@ def popular_dados_teste():
     time.sleep(1)
     
     sessoes_criadas = criar_sessoes_ficticias()
-    time.sleep(2)
+    time.sleep(5)
 
     criar_ingressos_ficticios(sessoes_criadas)
     
@@ -299,7 +318,7 @@ if __name__ == "__main__":
         threading.Thread(target=run, args=(filmes_app, 8001), daemon=True),
         threading.Thread(target=run, args=(salas_app, 8002), daemon=True),
         threading.Thread(target=run, args=(sessao_app, 8003), daemon=True),
-        threading.Thread(target=run, args=(sessao_app, 8004), daemon=True),
+        threading.Thread(target=run, args=(ingresso_app, 8004), daemon=True),
     ]
     for t in threads: t.start()
     print("Rodando: filmes:8001, salas:8002, sessoes:8003, ingressos:8004")

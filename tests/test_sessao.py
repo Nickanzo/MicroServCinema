@@ -95,7 +95,7 @@ SESSOES_FICTICIAS = [
     {
         "filme_id": "2",
         "sala_numero": 2,
-        "data_sessao": "2024-12-21",  # Dia diferente
+        "data_sessao": "2024-12-21",
         "hora_inicio": "16:30:00",
         "preco": 24.00
     },
