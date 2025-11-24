@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from datetime import date
 from pydantic import BaseModel
 from enum import Enum
@@ -23,6 +24,10 @@ class Filme(BaseModel):
     genero: GeneroFilme
     data_lancamento: date
     emCartaz: bool = True
+
+@app.get("/")
+def redireciona_docs():
+    return RedirectResponse(url="/docs")
 
 @app.get("/check")
 def check():

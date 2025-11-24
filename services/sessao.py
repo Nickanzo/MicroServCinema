@@ -1,5 +1,6 @@
 from datetime import date, time, timedelta, datetime
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import Optional
 import requests
@@ -64,6 +65,10 @@ def calcular_hora_fim(hora_inicio: time) -> time:
     datetime_inicio = datetime.combine(date.today(), hora_inicio)
     datetime_fim = datetime_inicio + timedelta(minutes=120)
     return datetime_fim.time()
+
+@app.get("/")
+def redireciona_docs():
+    return RedirectResponse(url="/docs")
 
 @app.get("/check")
 def check():

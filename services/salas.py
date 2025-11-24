@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import List
 from enum import Enum
@@ -34,6 +35,10 @@ class Sala(BaseModel):
 class ReservaAssentoRequest(BaseModel):
     fila: str
     numero: int
+
+@app.get("/")
+def redireciona_docs():
+    return RedirectResponse(url="/docs")
 
 @app.get("/check")
 def check():
