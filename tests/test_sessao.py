@@ -234,7 +234,7 @@ if __name__ == "__main__":
     for t in threads: t.start()
     print("Rodando: filmes:8001, salas:8002, sessoes:8003")
 
-    time.sleep(3)
+    time.sleep(2)
     data_thread = threading.Thread(target=popular_dados_teste, daemon=True)
     data_thread.start()
     try:
