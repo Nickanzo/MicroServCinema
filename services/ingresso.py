@@ -9,10 +9,10 @@ app = FastAPI(title="ingresso")
 INGRESSOS = []
 
 class StatusIngresso(BaseModel):
-    RESERVADO: "reservado"
-    CONFIRMADO: "confirmado"
-    CANCELADO: "cancelado"
-    USADO: "usado"
+    RESERVADO = "reservado"
+    CONFIRMADO = "confirmado"
+    CANCELADO = "cancelado"
+    USADO = "usado"
 
 class Ingresso(BaseModel):
     ingresso_id: str
