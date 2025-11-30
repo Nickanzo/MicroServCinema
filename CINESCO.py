@@ -10,7 +10,7 @@ Versão: 1.0.0
 Arquitetura: Microserviços
 ================================================================================
 """
-import requests, os
+import requests, os, time, sys
 
 SERVICES = {
     "filmes": "http://localhost:8001",
@@ -137,32 +137,49 @@ def tela_inicial():
 
 def menu_principal():
 
-    print(" Selecione uma das opções a seguir: ")
-    print("1 - Estatísticas do Cinema")
-    print("2 - Gerenciar Filmes")
-    print("3 - Gerenciar Salas") 
-    print("4 - Gerenciar Sessões")
-    print("5 - Gerenciar Ingressos")
-    print("6 - Carregar dados no Cinema")
-    print("7 - Sair")
+    while True:
     
-    usr = input()
+        print(" Selecione uma das opções a seguir: ")
+        print("1 - Estatísticas do Cinema")
+        print("2 - Gerenciar Filmes")
+        print("3 - Gerenciar Salas") 
+        print("4 - Gerenciar Sessões")
+        print("5 - Gerenciar Ingressos")
+        print("6 - Carregar dados no Cinema")
+        print("7 - Sair")
 
-    match usr:
-        case "2":
-            gerenciar_filmes()
-            pass    
-        case "6":
-            pass
-        case _:
-            popup("Selecione uma opcao valida !", 'err')            
-            espera_usuario()
-            limpa_tela()
+        usr = input()
 
-if __name__ == "__main__":
+        match usr:
+            case "2":
+                gerenciar_filmes()
+                pass    
+            case "6":
+                pass
+            case "7":
+                limpa_tela()
+                for i in range(6):
+                    print(f"\rEncerrando CINESCO {i*20}%", end="",flush=True)
+                    time.sleep(0.5)
+                limpa_tela()
+                print("Obrigado por usar CINESCO !")                                        
+                break
+            case _:
+                popup("Selecione uma opcao valida !", 'err')            
+                espera_usuario()
+                limpa_tela()
+
+
+
+if __name__ == "__main__":   
+
+    limpa_tela()
+    for i in range(6):
+        print(f"\rInicializando CINESCO {i*20}%", end="",flush=True)
+        time.sleep(0.5)
+    limpa_tela()
 
     tela_inicial()
-
-    while True:
-        menu_principal()
+    
+    menu_principal()    
 
