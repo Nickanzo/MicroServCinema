@@ -1,7 +1,6 @@
 import subprocess
 import time
 import sys
-import os
 
 def run_service(module_name, port):
     try:
@@ -15,15 +14,14 @@ def run_service(module_name, port):
 
 if __name__ == "__main__":
     services = [
-        ("dashboard", 8000)
+        #("dashboard", 8000)
         ("filmes", 8001),
         ("salas", 8002),
         ("sessao", 8003),        
+        ("ingresso", 8004),        
     ]
     
     processes = []
-    
-    print("Preparando CINESCO...")
     
     for service, port in services:
         process = run_service(service, port)
@@ -36,6 +34,7 @@ if __name__ == "__main__":
     print("Sessões: http://localhost:8002/docs")    
     print("Filmes: http://localhost:8001/docs")
     print("Salas: http://localhost:8003/docs")
+    print("Ingresso: http://localhost:8004/docs")
     
     try:        
         for process in processes:
