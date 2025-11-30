@@ -10,7 +10,7 @@ Versão: 1.0.0
 Arquitetura: Microserviços
 ================================================================================
 """
-import requests, os, time, sys
+import requests, os, time
 
 SERVICES = {
     "filmes": "http://localhost:8001",
@@ -102,7 +102,6 @@ def gerenciar_filmes():
                 limpa_tela()
 
 def listar_filmes():
-    """Lista todos os filmes"""
     limpa_tela()
     titulo_menu("LISTA DE FILMES")
     
@@ -116,10 +115,45 @@ def listar_filmes():
             print(f"Gênero: {filme.get('genero', 'N/A')}")
             print(f"Lançamento: {filme.get('data_lancamento', 'N/A')}")
             print(f"Em Cartaz: {'Sim' if filme.get('emCartaz') else 'Não'}")
-            print()
-    
+            print()    
     espera_usuario()
 
+def gerenciar_salas():
+    while True:
+        limpa_tela()
+        titulo_menu("GERENCIAR SALAS")
+        print("1 - Listar Salas")
+        print("2 - Criar Sala")
+        print("3 -  Voltar ao Menu Principal")
+        
+        opcao = input("\n📝 Escolha uma opção: ")
+        
+        match opcao:
+            case "1":
+                listar_salas()
+            case "2":
+                criar_sala()
+            case "3":
+                break
+            case _:
+                popup("Opção inválida!", "err")
+
+def listar_salas():
+    limpa_tela()
+    titulo_menu("LISTA DE SALAS")
+    
+    salas = get_salas()
+    if not salas:
+        popup("Nenhuma sala cadastrada.", "info")
+    else:
+        for sala in salas:
+            print(f"Sala {sala.get('numero')}")
+            print(f"Capacidade: {sala.get('capacidade', 'N/A')} assentos")
+            print(f"Disponíveis: {sala.get('assentos_disponiveis', 'N/A')}")
+            print(f"Status: {'Disponível' if sala.get('disponivel') else 'Indisponível'}")
+            print()
+    
+    espera_usuario()                
 
 def espera_usuario():
     input("\n Pressione Enter para continuar...\n")
@@ -145,8 +179,7 @@ def menu_principal():
         print("3 - Gerenciar Salas") 
         print("4 - Gerenciar Sessões")
         print("5 - Gerenciar Ingressos")
-        print("6 - Carregar dados no Cinema")
-        print("7 - Sair")
+        print("6 - Sair")
 
         usr = input()
 
@@ -154,9 +187,9 @@ def menu_principal():
             case "2":
                 gerenciar_filmes()
                 pass    
-            case "6":
+            case "5":
                 pass
-            case "7":
+            case "6":
                 limpa_tela()
                 for i in range(6):
                     print(f"\rEncerrando CINESCO {i*20}%", end="",flush=True)
