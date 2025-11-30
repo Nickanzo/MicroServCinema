@@ -60,7 +60,7 @@ def get_filmes():
     return response.json().get("filmes", []) if response else []
 
 def get_salas():
-    response = make_request("salas", "/salas")
+    response = make_request("salas", "/lista-salas")
     return response.json().get("salas", []) if response else []
 
 def get_sessoes():
@@ -126,7 +126,7 @@ def gerenciar_salas():
         print("2 - Criar Sala")
         print("3 -  Voltar ao Menu Principal")
         
-        opcao = input("\n📝 Escolha uma opção: ")
+        opcao = input("\n Escolha uma opção: ")
         
         match opcao:
             case "1":
@@ -153,7 +153,152 @@ def listar_salas():
             print(f"Status: {'Disponível' if sala.get('disponivel') else 'Indisponível'}")
             print()
     
-    espera_usuario()                
+    espera_usuario()
+
+def gerenciar_sessoes():
+    while True:
+        limpa_tela()
+        titulo_menu("GERENCIAR SESSÕES")
+        print("1 - Listar Sessões")
+        print("2 - Criar Sessão")
+        print("3 - Mostra Assentos de Sessao")        
+        print("4 - Voltar ao Menu Principal")
+        
+        opcao = input("\n Escolha uma opção: ")
+        
+        match opcao:
+            case "1":
+                listar_sessoes()
+            case "2":
+                criar_sessao()
+            case "3":
+                mostra_assentos()
+            case "4":
+                break
+            case _:
+                popup("Opção inválida!", "err")
+
+def listar_sessoes():
+    limpa_tela()
+    titulo_menu("LISTA DE SESSÕES")
+    
+    sessoes = get_sessoes()
+    if not sessoes:
+        popup("Nenhuma sessão agendada.", "info")
+    else:
+        for sessao in sessoes:
+            print(f"{sessao.get('sessao_id')}")
+            print(f"Filme ID: {sessao.get('filme_id')}")
+            print(f"Sala: {sessao.get('sala_numero')}")
+            print(f"Data: {sessao.get('data_sessao')}")
+            print(f"Horário: {sessao.get('hora_inicio')} - {sessao.get('hora_fim')}")
+            print(f"Preço: R$ {sessao.get('preco', 0):.2f}")
+            print(f"Assentos Disponíveis: {sessao.get('assentos_disponiveis')}")
+            print()
+    
+    espera_usuario()
+
+def display_cadeiras_sessao(sessao_id: str):
+    limpa_tela()
+    titulo_menu(f"MAPEAMENTO DE CADEIRAS - SESSÃO {sessao_id}")
+    
+    try:
+        sessao_response = make_request("sessao", f"/sessoes/{sessao_id}")
+        if not sessao_response or sessao_response.status_code != 200:
+            popup("Sessão não encontrada", "err")
+            espera_usuario()
+            return
+        
+        sessao = sessao_response.json().get("sessao", {})
+        sala_numero = sessao.get("sala_numero")
+        
+        assentos_response = make_request("sessao", f"/sessoes/{sessao_id}/assentos-disponiveis")
+        if not assentos_response or assentos_response.status_code != 200:
+            popup("Erro ao buscar assentos da sessão", "err")
+            espera_usuario()
+            return
+        
+        assentos_data = assentos_response.json()
+        assentos_disponiveis = assentos_data.get("assentos", [])
+        
+        ingressos_response = make_request("ingresso", f"/ingressos/sessao/{sessao_id}")
+        ingressos_vendidos = []
+        if ingressos_response and ingressos_response.status_code == 200:
+            ingressos_vendidos = ingressos_response.json().get("ingressos", [])
+        
+        assentos_ocupados = {}
+        for ingresso in ingressos_vendidos:
+            if ingresso.get("status") in ["reservado", "confirmado", "usado"]:
+                fila = ingresso.get("fila_assento")
+                numero = ingresso.get("num_assento")
+                assentos_ocupados[f"{fila}{numero}"] = ingresso
+        
+        print(f"Sessão: {sessao_id}")
+        print(f"Sala: {sala_numero}")
+        print(f"Capacidade: {assentos_data.get('total_assentos', 0)} assentos")
+        print(f"Disponíveis: {assentos_data.get('assentos_disponiveis', 0)} assentos")
+        print(f"Ocupados: {len(assentos_ocupados)} assentos")
+        print()
+        
+        print(" " * 15 + "-" * 10)
+        print(" " * 10 + " T E L A  D O  C I N E M A")
+        print(" " * 15 + "-" * 10)
+        print()
+        
+        print("     " + "".join(f"{i:2}" for i in range(1, 11)))
+        print("    ┌" + "──" * 10 + "┐")
+        
+        fileiras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        
+        for fileira in fileiras:
+            linha = f"  {fileira} │"
+            for numero in range(1, 11):
+                assento_id = f"{fileira}{numero}"
+                
+                if assento_id in assentos_ocupados:
+                    ingresso = assentos_ocupados[assento_id]
+                    if ingresso.get("status") == "confirmado":
+                        linha += "🟢"
+                    else:
+                        linha += "🟡"
+                else:
+                    disponivel = any(
+                        a["fila"] == fileira and a["numero"] == numero 
+                        for a in assentos_disponiveis
+                    )
+                    if disponivel and fileira == "A" or fileira == "B":
+                        linha += "🔷"
+                    elif disponivel:
+                        linha += "🟦"
+                    else:
+                        linha += "🟥"
+            
+            linha += "│"
+            print(linha)
+        
+        print("    └" + "──" * 10 + "┘")
+        print()
+        
+        print(" LEGENDA:")
+        print("   🟦 Disponível   🔷 VIP   🟡 Reservado   🟢 Confirmado   🟥 Indisponível")
+        print()
+        
+        if assentos_ocupados:
+            print(" ASSENTOS OCUPADOS:")
+            for assento_id, ingresso in list(assentos_ocupados.items())[:5]:
+                print(f"   {assento_id}: {ingresso.get('nome_cliente')} - {ingresso.get('status')}")
+            if len(assentos_ocupados) > 5:
+                print(f"   ... e mais {len(assentos_ocupados) - 5} assentos ocupados")
+        
+    except Exception as e:
+        popup(f"Erro ao exibir cadeiras: {e}", "err")
+    
+    espera_usuario()
+
+def mostra_assentos():
+    sessao = input("Informe a sessao: ")
+
+    display_cadeiras_sessao(sessao)
 
 def espera_usuario():
     input("\n Pressione Enter para continuar...\n")
@@ -178,8 +323,8 @@ def menu_principal():
         print("2 - Gerenciar Filmes")
         print("3 - Gerenciar Salas") 
         print("4 - Gerenciar Sessões")
-        print("5 - Gerenciar Ingressos")
-        print("6 - Sair")
+        #print("5 - Gerenciar Ingressos")
+        print("5 - Sair")
 
         usr = input()
 
@@ -187,9 +332,12 @@ def menu_principal():
             case "2":
                 gerenciar_filmes()
                 pass    
-            case "5":
+            case "3":
+                gerenciar_salas()
                 pass
-            case "6":
+            case "4":
+                gerenciar_sessoes()
+            case "5":
                 limpa_tela()
                 for i in range(6):
                     print(f"\rEncerrando CINESCO {i*20}%", end="",flush=True)
