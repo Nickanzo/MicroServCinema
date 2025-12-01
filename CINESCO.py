@@ -87,11 +87,11 @@ def gerenciar_filmes():
                 listar_filmes()
                 pass
             case "2":
-                adicionar_filme()
+                #adicionar_filme()
                 pass
             case "3":
                 pass
-                buscar_filme()
+                #buscar_filme()
             case "4":
                 limpa_tela()
                 tela_inicial()
@@ -131,8 +131,10 @@ def gerenciar_salas():
         match opcao:
             case "1":
                 listar_salas()
+                pass
             case "2":
-                criar_sala()
+                #criar_sala()
+                pass
             case "3":
                 break
             case _:
@@ -169,8 +171,10 @@ def gerenciar_sessoes():
         match opcao:
             case "1":
                 listar_sessoes()
+                pass
             case "2":
-                criar_sessao()
+                #criar_sessao()
+                pass
             case "3":
                 mostra_assentos()
             case "4":
@@ -246,7 +250,7 @@ def display_cadeiras_sessao(sessao_id: str):
         print()
         
         print("     " + "".join(f"{i:2}" for i in range(1, 11)))
-        print("    ┌" + "──" * 10 + "┐")
+        print("    ┌" + "──" * 9 + "───┐")
         
         fileiras = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
         
@@ -267,20 +271,20 @@ def display_cadeiras_sessao(sessao_id: str):
                         for a in assentos_disponiveis
                     )
                     if disponivel and fileira == "A" or fileira == "B":
-                        linha += "🔷"
+                        linha += "🔹"
                     elif disponivel:
                         linha += "🟦"
                     else:
                         linha += "🟥"
             
-            linha += "│"
+            linha += " │"
             print(linha)
         
-        print("    └" + "──" * 10 + "┘")
+        print("    └" + "──" * 9 + "───┘")
         print()
         
         print(" LEGENDA:")
-        print("   🟦 Disponível   🔷 VIP   🟡 Reservado   🟢 Confirmado   🟥 Indisponível")
+        print("   🟦 Disponível   🔹 VIP   🟡 Reservado   🟢 Confirmado   🟥 Indisponível")
         print()
         
         if assentos_ocupados:
@@ -294,6 +298,33 @@ def display_cadeiras_sessao(sessao_id: str):
         popup(f"Erro ao exibir cadeiras: {e}", "err")
     
     espera_usuario()
+
+def mostrar_estatisticas():
+    limpa_tela()
+    titulo_menu("ESTATÍSTICAS DO CINEMA")
+    
+    filmes = get_filmes()
+    salas = get_salas()
+    sessoes = get_sessoes()
+    ingressos = get_ingressos()
+    
+    receita_total = sum(
+        ingresso["preco_pago"] for ingresso in ingressos 
+        if ingresso.get("status") != "cancelado"
+    )
+    
+    total_assentos = sum(sala.get("capacidade", 0) for sala in salas)
+    assentos_ocupados = len([i for i in ingressos if i.get("status") in ["reservado", "confirmado", "usado"]])
+    ocupacao_media = (assentos_ocupados / total_assentos * 100) if total_assentos > 0 else 0
+    
+    print(f"Filmes em Cartaz: {len(filmes)}")
+    print(f"Salas Disponíveis: {len(salas)}")
+    print(f"Sessões Agendadas: {len(sessoes)}")
+    print(f"Ingressos Vendidos: {len(ingressos)}")
+    print(f"Receita Total: R$ {receita_total:.2f}")
+    print(f"Ocupação Média: {ocupacao_media:.1f}%")
+    
+    espera_usuario()    
 
 def mostra_assentos():
     sessao = input("Informe a sessao: ")
@@ -329,6 +360,9 @@ def menu_principal():
         usr = input()
 
         match usr:
+            case "1":
+                mostrar_estatisticas()
+                pass
             case "2":
                 gerenciar_filmes()
                 pass    
@@ -337,18 +371,19 @@ def menu_principal():
                 pass
             case "4":
                 gerenciar_sessoes()
+                pass
             case "5":
                 limpa_tela()
                 for i in range(6):
                     print(f"\rEncerrando CINESCO {i*20}%", end="",flush=True)
                     time.sleep(0.5)
-                limpa_tela()
                 print("Obrigado por usar CINESCO !")                                        
                 break
             case _:
                 popup("Selecione uma opcao valida !", 'err')            
                 espera_usuario()
-                limpa_tela()
+
+        limpa_tela()                
 
 
 
